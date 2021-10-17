@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card, CardContent, makeStyles, Typography } from '@material-ui/core'
+import CountUp from 'react-countup';
 
 const useStyles = makeStyles({
   wrapper: (props) => ({
@@ -22,7 +23,9 @@ export default function HighlightCard({ summary }) {
     <Card className={styles.wrapper}>
       <CardContent>
         <Typography className={styles.title} component="p" variant="body2">{summary.title}</Typography>
-        <Typography className={styles.count} component="span" variant="body2">{summary.count}</Typography>
+        <Typography className={styles.count} component="span" variant="body2">
+          <CountUp end={summary.count} separator='.' duration={2} />
+        </Typography>
       </CardContent>
     </Card>
   )

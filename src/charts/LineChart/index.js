@@ -1,14 +1,16 @@
 import HighchartsReact from 'highcharts-react-official'
 import Highchart from 'highcharts'
 import React, { useEffect, useState } from 'react'
+import moment from 'moment';
+import { Button, ButtonGroup } from '@material-ui/core';
 
 const generateOptions = (data) => {
-  const categories = [];
+  const categories = data.map(item => moment(item.Date).format('YYYY/MM/DD'));
   return {
     chart: { height: 500, },
     title: { text: 'Cumulative cases' },
-    xAsis: { categories, crosshair: true, },
-    colors: ['green'],
+    xAxis: { categories, crosshair: true, },
+    colors: ['red'],
     yAxis: { min: 0, title: { text: null } },
     tooltip: {
       headerFormat: 'something',
@@ -24,24 +26,59 @@ const generateOptions = (data) => {
       },
     },
     series: {
-      name: '',
-      data,
+      name: 'Cases',
+      data: data.map(i => i.Confirmed),
     }
   }
 }
 
-export default function LineChart({ data }) {
+const LineChart = ({ data }) => {
   const [options, setOptions] = useState({});
+  const [reportType, setReportType] = useState('all')
 
   useEffect(() => {
-    setOptions(generateOptions(data))
-  }, [data]);
+    let filteredData = [];
+    switch (reportType) {
+      case '30':
+        filteredData = data.slice(data.length - 30);
+        break;
+      case '7':
+        filteredData = data.slice(data.length - 7);
+        break;
+      default:
+        filteredData = data;
+        break;
+    }
+    setOptions(generateOptions(filteredData))
+  }, [data, reportType]);
+
+  useEffect(() => {
+  }, [reportType]);
 
   return (
     <div>
+      <ButtonGroup size="small" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+          color={reportType === 'all' ? 'secondary' : ''}
+          onClick={() => setReportType('all')}>
+          Show all
+        </Button>
+        <Button
+          color={reportType === '30' ? 'secondary' : ''}
+          onClick={() => setReportType('30')}>
+          Show latest 30 days
+        </Button>
+        <Button
+          color={reportType === '7' ? 'secondary' : ''}
+          onClick={() => setReportType('7')}>
+          Show latest 7 days
+        </Button>
+      </ButtonGroup>
       <HighchartsReact highcharts={Highchart}
         options={options}
       />
     </div>
   )
 }
+
+export default React.memo(LineChart);
